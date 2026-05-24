@@ -1,0 +1,2422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Swarm Desktop - OpenClaw Edition v2</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    :root {
+      --bg-dark: #060610;
+      --bg-card: #0c0c1a;
+      --bg-input: #131328;
+      --bg-hover: #1a1a38;
+      --accent: #00ff88;
+      --accent-dim: #00cc6a;
+      --accent2: #00d4ff;
+      --accent-purple: #a855f7;
+      --text: #e8e8f0;
+      --text-dim: #8888a0;
+      --muted: #555570;
+      --danger: #ff4466;
+      --warning: #ffaa00;
+      --success: #00ff88;
+      --border: rgba(255,255,255,0.06);
+      --glow: 0 0 20px rgba(0,255,136,0.3);
+    }
+    
+    body {
+      font-family: 'Segoe UI Variable', 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      height: 100vh;
+      overflow: hidden;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+    
+    /* Main Layout */
+    .app-container {
+      display: grid;
+      grid-template-columns: 260px 1fr 340px;
+      height: 100vh;
+      gap: 1px;
+      background: var(--border);
+    }
+    
+    /* Sidebar */
+    .sidebar {
+      background: var(--bg-card);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .sidebar-header {
+      padding: 20px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 4px;
+    }
+    
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      box-shadow: var(--glow);
+    }
+    
+    .logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .version-badge {
+      font-size: 10px;
+      color: var(--accent);
+      background: rgba(0,255,136,0.1);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+    
+    .sidebar-nav {
+      flex: 1;
+      padding: 16px 12px;
+      overflow-y: auto;
+    }
+    
+    .nav-section {
+      margin-bottom: 20px;
+    }
+    
+    .nav-section-title {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      color: var(--muted);
+      padding: 0 12px;
+      margin-bottom: 8px;
+    }
+    
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.15s;
+      margin-bottom: 2px;
+      color: var(--text-dim);
+    }
+    
+    .nav-item:hover {
+      background: var(--bg-hover);
+      color: var(--text);
+    }
+    
+    .nav-item.active {
+      background: linear-gradient(135deg, rgba(0,255,136,0.15), rgba(0,212,255,0.1));
+      color: var(--accent);
+    }
+    
+    .nav-item .icon {
+      font-size: 18px;
+      width: 24px;
+      text-align: center;
+    }
+    
+    .nav-item .label {
+      font-size: 14px;
+      font-weight: 500;
+    }
+    
+    .nav-item .badge {
+      margin-left: auto;
+      background: var(--accent);
+      color: #000;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 10px;
+    }
+    
+    .nav-item .arrow {
+      margin-left: auto;
+      font-size: 12px;
+      opacity: 0.5;
+    }
+    
+    /* Stats Panel */
+    .sidebar-stats {
+      padding: 16px;
+      border-top: 1px solid var(--border);
+      background: rgba(0,255,136,0.02);
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    
+    .stat-box {
+      background: var(--bg-input);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    
+    .stat-label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-top: 2px;
+    }
+    
+    /* Main Area */
+    .main-area {
+      background: var(--bg-dark);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .main-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--bg-card);
+    }
+    
+    .main-title {
+      font-size: 16px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .main-title .status-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    
+    .header-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .header-btn {
+      padding: 8px 14px;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text-dim);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    .header-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text);
+      border-color: var(--accent);
+    }
+    
+    /* Strategy Bar */
+    .strategy-bar {
+      padding: 12px 24px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .strategy-label {
+      font-size: 12px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .strategy-options {
+      display: flex;
+      gap: 6px;
+      flex: 1;
+    }
+    
+    .strategy-btn {
+      padding: 8px 14px;
+      background: var(--bg-input);
+      border: 1px solid transparent;
+      border-radius: 8px;
+      color: var(--text-dim);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .strategy-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text);
+    }
+    
+    .strategy-btn.active {
+      background: linear-gradient(135deg, rgba(0,255,136,0.2), rgba(0,212,255,0.1));
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    
+    /* Chat Area */
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .message {
+      display: flex;
+      gap: 14px;
+      animation: slideIn 0.3s ease;
+    }
+    
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .message.user {
+      flex-direction: row-reverse;
+    }
+    
+    .message-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      flex-shrink: 0;
+      box-shadow: 0 0 15px rgba(0,255,136,0.2);
+    }
+    
+    .message.user .message-avatar {
+      background: linear-gradient(135deg, var(--accent-purple), #6366f1);
+    }
+    
+    .message-content {
+      max-width: 75%;
+      padding: 14px 18px;
+      border-radius: 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    .message.user .message-content {
+      background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+      color: #000;
+      border: none;
+      font-weight: 500;
+    }
+    
+    .message-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+    
+    .provider-chip {
+      background: var(--bg-input);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 10px;
+    }
+    
+    /* Swarm Results */
+    .swarm-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      margin-top: 16px;
+    }
+    
+    .swarm-header {
+      padding: 16px 20px;
+      background: linear-gradient(135deg, rgba(0,255,136,0.1), rgba(0,212,255,0.05));
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .swarm-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    
+    .swarm-title::before {
+      content: '';
+      width: 10px;
+      height: 10px;
+      background: var(--accent);
+      border-radius: 50%;
+      animation: pulse 1.5s infinite;
+    }
+    
+    .swarm-summary {
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+    
+    .swarm-results {
+      padding: 16px;
+      display: grid;
+      gap: 10px;
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    
+    .swarm-agent {
+      background: var(--bg-input);
+      border-radius: 12px;
+      padding: 14px;
+      border-left: 3px solid var(--accent);
+    }
+    
+    .swarm-agent.error {
+      border-left-color: var(--danger);
+    }
+    
+    .swarm-agent-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    
+    .swarm-agent-name {
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .swarm-agent-model {
+      font-size: 10px;
+      color: var(--muted);
+      background: var(--bg-dark);
+      padding: 2px 8px;
+      border-radius: 4px;
+    }
+    
+    .swarm-agent-latency {
+      font-size: 10px;
+      color: var(--accent);
+      font-weight: 600;
+    }
+    
+    .swarm-agent-result {
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text-dim);
+    }
+    
+    .swarm-agent-result pre {
+      background: var(--bg-dark);
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      font-size: 12px;
+      margin-top: 8px;
+    }
+    
+    /* Input Area */
+    .input-area {
+      padding: 20px 24px;
+      background: var(--bg-card);
+      border-top: 1px solid var(--border);
+    }
+    
+    .input-container {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+    }
+    
+    .input-wrapper {
+      flex: 1;
+      position: relative;
+    }
+    
+    .input-field {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      padding: 16px 20px;
+      border-radius: 14px;
+      color: var(--text);
+      font-size: 15px;
+      outline: none;
+      transition: all 0.2s;
+      resize: none;
+    }
+    
+    .input-field:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,255,136,0.1);
+    }
+    
+    .input-field::placeholder {
+      color: var(--muted);
+    }
+    
+    .send-btn {
+      background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+      border: none;
+      padding: 16px 28px;
+      border-radius: 14px;
+      color: #000;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .send-btn:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 20px rgba(0,255,136,0.4);
+    }
+    
+    .send-btn:active {
+      transform: scale(0.98);
+    }
+    
+    .input-tools {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    
+    .tool-btn {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      padding: 10px 16px;
+      border-radius: 10px;
+      color: var(--text-dim);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .tool-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(0,255,136,0.05);
+    }
+    
+    /* Right Panel */
+    .right-panel {
+      background: var(--bg-card);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .panel-tabs {
+      display: flex;
+      padding: 12px;
+      gap: 4px;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .panel-tab {
+      flex: 1;
+      padding: 10px;
+      text-align: center;
+      background: transparent;
+      border: none;
+      color: var(--text-dim);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      border-radius: 8px;
+      transition: all 0.15s;
+    }
+    
+    .panel-tab:hover {
+      background: var(--bg-hover);
+    }
+    
+    .panel-tab.active {
+      background: var(--accent);
+      color: #000;
+    }
+    
+    .panel-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    
+    /* Provider List */
+    .provider-item {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 10px;
+      transition: all 0.15s;
+    }
+    
+    .provider-item:hover {
+      border-color: rgba(0,255,136,0.3);
+    }
+    
+    .provider-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    
+    .provider-name {
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .provider-status {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+    
+    .provider-status.warning { background: var(--warning); }
+    .provider-status.error { background: var(--danger); }
+    
+    .provider-models {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 4px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+    
+    .model-tag {
+      background: var(--bg-dark);
+      padding: 2px 6px;
+      border-radius: 4px;
+    }
+    
+    .provider-stats {
+      display: flex;
+      gap: 12px;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--border);
+    }
+    
+    .provider-stat {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+    
+    .provider-stat span {
+      color: var(--accent);
+      font-weight: 600;
+    }
+    
+    .provider-toggle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+    
+    .toggle-switch {
+      width: 36px;
+      height: 20px;
+      background: var(--bg-dark);
+      border-radius: 10px;
+      position: relative;
+      transition: background 0.2s;
+    }
+    
+    .toggle-switch.active {
+      background: var(--accent);
+    }
+    
+    .toggle-switch::after {
+      content: '';
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-radius: 50%;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.2s;
+    }
+    
+    .toggle-switch.active::after {
+      transform: translateX(16px);
+    }
+    
+    /* Add Provider Form */
+    .add-provider-section {
+      margin-top: 16px;
+    }
+    
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+      border: none;
+      padding: 12px;
+      border-radius: 10px;
+      color: #000;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    .btn-primary:hover {
+      box-shadow: 0 0 15px rgba(0,255,136,0.3);
+    }
+    
+    .add-provider-form {
+      background: var(--bg-input);
+      border-radius: 12px;
+      padding: 16px;
+      margin-top: 12px;
+      display: none;
+    }
+    
+    .add-provider-form.show {
+      display: block;
+    }
+    
+    .form-group {
+      margin-bottom: 12px;
+    }
+    
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 13px;
+    }
+    
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+    
+    .form-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    
+    .btn-secondary {
+      flex: 1;
+      background: var(--bg-dark);
+      border: 1px solid var(--border);
+      padding: 10px;
+      border-radius: 8px;
+      color: var(--text-dim);
+      font-size: 12px;
+      cursor: pointer;
+    }
+    
+    /* Desktop Tools */
+    .desktop-tools-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+    
+    .desktop-tool {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    .desktop-tool:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    
+    .desktop-tool-icon {
+      font-size: 24px;
+      margin-bottom: 6px;
+    }
+    
+    .desktop-tool-label {
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+    
+    .desktop-result {
+      background: var(--bg-input);
+      border-radius: 10px;
+      padding: 12px;
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--text-dim);
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    
+    .desktop-result img {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+    
+    /* Console */
+    .console-output {
+      background: #000;
+      border-radius: 10px;
+      padding: 12px;
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+      font-size: 11px;
+      max-height: 300px;
+      overflow-y: auto;
+      margin-top: 12px;
+    }
+    
+    .console-line {
+      margin-bottom: 4px;
+      display: flex;
+      gap: 8px;
+    }
+    
+    .console-time {
+      color: var(--muted);
+    }
+    
+    .console-line.success { color: var(--accent); }
+    .console-line.error { color: var(--danger); }
+    .console-line.info { color: var(--accent2); }
+    
+    /* Loading */
+    .loading-spinner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 20px;
+      color: var(--accent);
+    }
+    
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid var(--bg-input);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* History */
+    .history-item {
+      background: var(--bg-input);
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    
+    .history-item:hover {
+      background: var(--bg-hover);
+    }
+    
+    .history-task {
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    
+    .history-meta {
+      font-size: 10px;
+      color: var(--muted);
+      display: flex;
+      gap: 12px;
+    }
+    
+    /* Hidden panels */
+    .panel-section {
+      display: none;
+    }
+    
+    .panel-section.active {
+      display: block;
+    }
+    
+    /* Voice Planner Section */
+    .voice-planner {
+      padding: 24px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    
+    .voice-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    .voice-title {
+      font-size: 20px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .voice-title .icon {
+      font-size: 28px;
+    }
+    
+    .voice-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 16px;
+      background: var(--bg-card);
+      border-radius: 20px;
+      font-size: 13px;
+    }
+    
+    .voice-status.listening {
+      background: rgba(255, 68, 102, 0.2);
+      color: #ff4466;
+    }
+    
+    .voice-status.listening::before {
+      content: '';
+      width: 10px;
+      height: 10px;
+      background: #ff4466;
+      border-radius: 50%;
+      animation: pulse 1s infinite;
+    }
+    
+    .voice-controls {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .voice-btn {
+      padding: 12px 20px;
+      border-radius: 12px;
+      border: none;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    
+    .voice-btn.primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+      color: #000;
+    }
+    
+    .voice-btn.secondary {
+      background: var(--bg-card);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    
+    .voice-btn:hover {
+      transform: scale(1.02);
+    }
+    
+    .voice-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .voice-main {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      flex: 1;
+      min-height: 0;
+    }
+    
+    .voice-panel {
+      background: var(--bg-card);
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+    
+    .voice-panel-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--border);
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .voice-panel-header .icon {
+      font-size: 18px;
+    }
+    
+    .voice-panel-content {
+      flex: 1;
+      padding: 16px;
+      overflow-y: auto;
+    }
+    
+    /* API Keys Panel */
+    .api-keys-form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    
+    .api-key-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    
+    .api-key-label {
+      font-size: 12px;
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+    
+    .api-key-input {
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      padding: 12px 14px;
+      border-radius: 10px;
+      color: var(--text);
+      font-size: 13px;
+      outline: none;
+      transition: all 0.2s;
+      font-family: 'Cascadia Code', 'Consolas', monospace;
+    }
+    
+    .api-key-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(0,255,136,0.1);
+    }
+    
+    .api-key-input::placeholder {
+      color: var(--muted);
+      font-family: 'Segoe UI', system-ui, sans-serif;
+    }
+    
+    .save-keys-btn {
+      padding: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dim));
+      border: none;
+      border-radius: 10px;
+      color: #000;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .save-keys-btn:hover {
+      transform: scale(1.02);
+      box-shadow: 0 0 20px rgba(0,255,136,0.3);
+    }
+    
+    .keys-saved {
+      padding: 12px;
+      background: rgba(0,255,136,0.1);
+      border-radius: 10px;
+      color: var(--accent);
+      font-size: 13px;
+      text-align: center;
+    }
+    
+    /* Gameplan Panel */
+    .gameplan-input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      padding: 14px;
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 14px;
+      outline: none;
+      resize: none;
+      min-height: 80px;
+      margin-bottom: 14px;
+    }
+    
+    .gameplan-input:focus {
+      border-color: var(--accent);
+    }
+    
+    .gameplan-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    
+    .gameplan-item {
+      background: var(--bg-input);
+      border-radius: 12px;
+      padding: 14px;
+      border-left: 3px solid var(--accent);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .gameplan-item:hover {
+      background: var(--bg-hover);
+      transform: translateX(4px);
+    }
+    
+    .gameplan-item.active {
+      border-left-color: var(--accent2);
+      background: rgba(0,212,255,0.1);
+    }
+    
+    .gameplan-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    
+    .gameplan-item-title {
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .gameplan-item-status {
+      font-size: 10px;
+      padding: 4px 10px;
+      border-radius: 10px;
+      background: var(--bg-dark);
+    }
+    
+    .gameplan-item-status.pending {
+      color: var(--warning);
+    }
+    
+    .gameplan-item-status.running {
+      color: var(--accent);
+      animation: pulse 1.5s infinite;
+    }
+    
+    .gameplan-item-status.done {
+      color: var(--success);
+    }
+    
+    .gameplan-item-steps {
+      font-size: 12px;
+      color: var(--text-dim);
+      margin-bottom: 10px;
+    }
+    
+    .gameplan-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    
+    .gameplan-step:last-child {
+      border-bottom: none;
+    }
+    
+    .gameplan-step .step-icon {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--bg-dark);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+    
+    .gameplan-step.completed .step-icon {
+      background: var(--accent);
+      color: #000;
+    }
+    
+    .gameplan-step.current .step-icon {
+      background: var(--accent2);
+      color: #000;
+    }
+    
+    .gameplan-step-text {
+      flex: 1;
+      font-size: 12px;
+    }
+    
+    .gameplan-actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    
+    .gameplan-action-btn {
+      flex: 1;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--bg-dark);
+      color: var(--text-dim);
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .gameplan-action-btn:hover {
+      background: var(--bg-hover);
+      color: var(--text);
+    }
+    
+    .gameplan-action-btn.execute {
+      background: rgba(0,255,136,0.2);
+      color: var(--accent);
+      border-color: var(--accent);
+    }
+    
+    .add-gameplan-btn {
+      width: 100%;
+      padding: 12px;
+      border: 2px dashed var(--border);
+      border-radius: 12px;
+      background: transparent;
+      color: var(--text-dim);
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 10px;
+    }
+    
+    .add-gameplan-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    
+    /* Audio Visualizer */
+    .audio-visualizer {
+      height: 60px;
+      background: var(--bg-dark);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      margin-top: 16px;
+      padding: 0 20px;
+    }
+    
+    .audio-bar {
+      width: 4px;
+      height: 20px;
+      background: var(--accent);
+      border-radius: 2px;
+      transition: height 0.1s;
+    }
+    
+    .audio-bar.active {
+      animation: audioWave 0.5s ease-in-out infinite;
+    }
+    
+    @keyframes audioWave {
+      0%, 100% { height: 20px; }
+      50% { height: 50px; }
+    }
+    
+    /* Headphone indicator */
+    .headphone-status {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      background: var(--bg-card);
+      border-radius: 10px;
+      font-size: 12px;
+      color: var(--text-dim);
+    }
+    
+    .headphone-icon {
+      font-size: 16px;
+    }
+    
+    .headphone-status.connected {
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon">🐝</div>
+          <div>
+            <div class="logo-text">AI Swarm</div>
+            <span class="version-badge">v2.0 OpenClaw</span>
+          </div>
+        </div>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Main</div>
+          <div class="nav-item active" data-section="chat">
+            <span class="icon">💬</span>
+            <span class="label">Chat</span>
+            <span class="badge" id="agentCount">24</span>
+          </div>
+          <div class="nav-item" data-section="swarm">
+            <span class="icon">🐝</span>
+            <span class="label">Swarm Control</span>
+            <span class="arrow">→</span>
+          </div>
+          <div class="nav-item" data-section="providers">
+            <span class="icon">☁️</span>
+            <span class="label">Providers</span>
+            <span class="badge" id="providerCount">22</span>
+          </div>
+          <div class="nav-item" data-section="desktop">
+            <span class="icon">🖥️</span>
+            <span class="label">Desktop</span>
+            <span class="arrow">→</span>
+          </div>
+          <div class="nav-item" data-section="history">
+            <span class="icon">📜</span>
+            <span class="label">History</span>
+            <span class="arrow">→</span>
+          </div>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Integrations</div>
+          <div class="nav-item" data-section="mcps">
+            <span class="icon">🔌</span>
+            <span class="label">MCP Servers</span>
+            <span class="badge" id="mcpCount">500+</span>
+          </div>
+          <div class="nav-item" data-section="apis">
+            <span class="icon">🌐</span>
+            <span class="label">API Hub</span>
+            <span class="badge" id="apiCount">1000+</span>
+          </div>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Tools</div>
+          <div class="nav-item" data-section="console">
+            <span class="icon">📟</span>
+            <span class="label">Console</span>
+          </div>
+          <div class="nav-item" data-section="settings">
+            <span class="icon">⚙️</span>
+            <span class="label">Settings</span>
+          </div>
+          <div class="nav-item" data-section="voice">
+            <span class="icon">🎧</span>
+            <span class="label">Voice Planner</span>
+            <span class="badge" style="background:var(--accent2);">NEW</span>
+          </div>
+        </div>
+      </nav>
+      
+      <div class="sidebar-stats">
+        <div class="stats-grid">
+          <div class="stat-box">
+            <div class="stat-value" id="statAgents">24</div>
+            <div class="stat-label">Agents</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-value" id="statProviders">22</div>
+            <div class="stat-label">Providers</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Main Area -->
+    <div class="main-area">
+      <div class="main-header">
+        <div class="main-title">
+          <div class="status-dot"></div>
+          AI Agent Chat
+        </div>
+        <div class="header-actions">
+          <button class="header-btn" onclick="clearChat()">🗑️ Clear</button>
+          <button class="header-btn" onclick="showShortcuts()">⌨️ Shortcuts</button>
+        </div>
+      </div>
+      
+      <div class="strategy-bar">
+        <span class="strategy-label">Strategy:</span>
+        <div class="strategy-options">
+          <button class="strategy-btn active" data-strategy="swarm">🐝 Swarm</button>
+          <button class="strategy-btn" data-strategy="fastest">⚡ Fastest</button>
+          <button class="strategy-btn" data-strategy="cheapest">💰 Free</button>
+          <button class="strategy-btn" data-strategy="smart">🧠 Smart</button>
+          <button class="strategy-btn" data-strategy="parallel">🔀 Parallel</button>
+        </div>
+      </div>
+      
+      <div class="chat-messages" id="chatMessages">
+        <div class="message">
+          <div class="message-avatar">🐝</div>
+          <div class="message-content">
+            Welcome to <strong>AI Swarm Desktop v2</strong>! I have <strong>24 AI agents</strong> ready across <strong>22 providers</strong>. Free tier: Groq, Cerebras, Lepton, Deepseek, OpenRouter, Cloudflare Workers AI. Local: Ollama, LM Studio.
+            <div class="message-meta">
+              <span class="provider-chip">🐝 SWARM ACTIVE</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="input-area">
+        <div class="input-container">
+          <div class="input-wrapper">
+            <textarea class="input-field" id="messageInput" placeholder="Ask anything... The swarm will answer!" rows="1" onkeydown="handleInputKey(event)"></textarea>
+          </div>
+          <button class="send-btn" onclick="sendMessage()">
+            Send
+            <span>🚀</span>
+          </button>
+        </div>
+        <div class="input-tools">
+          <button class="tool-btn" onclick="runDesktopTool('screenshot')">📸 Screenshot</button>
+          <button class="tool-btn" onclick="runDesktopTool('windows')">🪟 Windows</button>
+          <button class="tool-btn" onclick="runDesktopTool('clipboard')">📋 Clipboard</button>
+          <button class="tool-btn" onclick="switchSection('console')">⚡ Console</button>
+          <button class="tool-btn" onclick="switchSection('desktop')">🎮 Desktop</button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- History Panel -->
+    <div id="historyTab" class="panel-section">
+      <div style="padding: 20px;">
+        <h3 style="margin-bottom: 16px;">📜 Conversation History</h3>
+        <div id="historyList" style="display: grid; gap: 10px;"></div>
+        <button class="header-btn" style="margin-top: 16px;" onclick="clearHistory()">🗑️ Clear History</button>
+      </div>
+    </div>
+    
+    <!-- MCP Servers Panel -->
+    <div id="mcpsTab" class="panel-section">
+      <div style="padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h3>🔌 MCP Server Directory</h3>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="mcpSearch" placeholder="Search MCPs..." style="background: var(--bg-input); border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; color: var(--text); font-size: 13px; width: 180px;" oninput="filterMcps()">
+            <select id="mcpCategoryFilter" style="background: var(--bg-input); border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; color: var(--text); font-size: 13px;" onchange="filterMcps()">
+              <option value="">All Categories</option>
+              <option value="ai">AI & ML</option>
+              <option value="dev">Developer Tools</option>
+              <option value="data">Data & APIs</option>
+              <option value="cloud">Cloud & Infra</option>
+              <option value="comm">Communication</option>
+              <option value="business">Business</option>
+              <option value="media">Media & Content</option>
+              <option value="security">Security</option>
+              <option value="automation">Automation</option>
+              <option value="storage">Storage & Files</option>
+            </select>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 12px; max-height: calc(100vh - 240px); overflow-y: auto;" id="mcpGrid"></div>
+      </div>
+    </div>
+    
+    <!-- API Hub Panel -->
+    <div id="apisTab" class="panel-section">
+      <div style="padding: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+          <h3>🌐 API Hub - Connect Anything</h3>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="apiSearch" placeholder="Search APIs..." style="background: var(--bg-input); border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; color: var(--text); font-size: 13px; width: 180px;" oninput="filterApis()">
+            <select id="apiCategoryFilter" style="background: var(--bg-input); border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; color: var(--text); font-size: 13px;" onchange="filterApis()">
+              <option value="">All Categories</option>
+              <option value="ai">AI & Machine Learning</option>
+              <option value="social">Social Media</option>
+              <option value="communication">Communication</option>
+              <option value="payments">Payments & Finance</option>
+              <option value="storage">Cloud Storage</option>
+              <option value="devops">DevOps & Infrastructure</option>
+              <option value="analytics">Analytics & Monitoring</option>
+              <option value="ecommerce">E-Commerce</option>
+              <option value="marketing">Marketing & Email</option>
+              <option value="productivity">Productivity</option>
+              <option value="health">Health & Fitness</option>
+              <option value="travel">Travel & Booking</option>
+              <option value="government">Government & Civic</option>
+            </select>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; max-height: calc(100vh - 240px); overflow-y: auto;" id="apiGrid"></div>
+      </div>
+    </div>
+    
+    <!-- Right Panel -->
+    <div class="right-panel">
+      <!-- Providers/Agents Tabs -->
+      <div class="panel-tabs">
+        <button class="panel-tab active" onclick="showPanelTab('providers')">Providers</button>
+        <button class="panel-tab" onclick="showPanelTab('agents')">Agents</button>
+      </div>
+      
+      <div id="providersTab" class="panel-section" style="display:block;">
+        <div class="panel-actions">
+          <button class="panel-btn" onclick="toggleAddProvider()">+ Add Provider</button>
+        </div>
+        
+        <div id="addProviderForm" class="add-form" style="display:none;">
+          <input type="text" id="providerName" placeholder="Provider Name (e.g., OpenAI)" class="config-input">
+          <select id="providerType" class="config-input">
+            <option value="openai">OpenAI Compatible</option>
+            <option value="anthropic">Anthropic</option>
+            <option value="google">Google</option>
+            <option value="custom">Custom</option>
+          </select>
+          <input type="text" id="providerUrl" placeholder="Base URL (e.g., https://api.openai.com)" class="config-input">
+          <input type="password" id="providerKey" placeholder="API Key" class="config-input">
+          <input type="text" id="providerModel" placeholder="Default Model (e.g., gpt-4o)" class="config-input">
+          <button class="panel-btn" onclick="addProvider()">Add Provider</button>
+        </div>
+        
+        <div id="providerList" class="provider-list"></div>
+      </div>
+      
+      <div id="agentsTab" class="panel-section" style="display:none;">
+        <div class="panel-actions">
+          <button class="panel-btn" onclick="initAgents()">↻ Refresh</button>
+        </div>
+        <div id="agentList" class="provider-list"></div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    let currentStrategy = 'swarm';
+    let providers = [];
+    let agents = [];
+    
+    async function init() {
+      try {
+        const stats = await window.api.getStats();
+        document.getElementById('agentCount').textContent = stats.agents;
+        document.getElementById('statAgents').textContent = stats.agents;
+        document.getElementById('providerCount').textContent = stats.activeProviders;
+        document.getElementById('statProviders').textContent = stats.activeProviders;
+        
+        providers = await window.api.getProviders();
+        renderProviders();
+        
+        agents = await window.api.getAgents();
+        renderAgents();
+      } catch (e) {
+        console.error('Init error:', e);
+      }
+    }
+    
+    function renderProviders() {
+      const list = document.getElementById('providerList');
+      list.innerHTML = providers.map(p => `
+        <div class="provider-item">
+          <div class="provider-header">
+            <span class="provider-name">${p.name}</span>
+            <span class="provider-status ${p.errorCount > p.successCount ? 'error' : p.credits === 0 ? 'warning' : ''}"></span>
+          </div>
+          <div class="provider-models">
+            ${p.models.slice(0, 3).map(m => `<span class="model-tag">${m}</span>`).join('')}
+          </div>
+          <div class="provider-stats">
+            <div class="provider-stat">Priority: <span>${p.priority}</span></div>
+            <div class="provider-stat">✅ <span>${p.successCount}</span></div>
+            <div class="provider-stat">❌ <span>${p.errorCount}</span></div>
+          </div>
+          <div class="provider-toggle" onclick="toggleProvider('${p.id}')">
+            <div class="toggle-switch ${p.enabled ? 'active' : ''}" id="toggle-${p.id}"></div>
+            <span style="font-size:11px;color:var(--text-dim);">${p.enabled ? 'Enabled' : 'Disabled'}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function renderAgents() {
+      const list = document.getElementById('agentList');
+      list.innerHTML = agents.map(a => `
+        <div class="provider-item">
+          <div class="provider-header">
+            <span class="provider-name">${a.name}</span>
+            <span class="provider-status ${a.status === 'idle' ? '' : a.status === 'working' ? 'warning' : 'error'}"></span>
+          </div>
+          <div class="provider-models">
+            <span class="model-tag">${a.model}</span>
+          </div>
+          <div class="provider-stats">
+            <div class="provider-stat">Requests: <span>${a.totalRequests}</span></div>
+            <div class="provider-stat">Rate: <span>${a.successRate}%</span></div>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    function handleInputKey(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    }
+    
+    async function sendMessage() {
+      const input = document.getElementById('messageInput');
+      const msg = input.value.trim();
+      if (!msg) return;
+      input.value = '';
+      
+      addMessage('user', msg);
+      const loadingDiv = addLoadingMessage();
+      
+      try {
+        let result;
+        if (currentStrategy === 'swarm' || currentStrategy === 'parallel') {
+          result = await window.api.sendMessage(msg);
+          renderSwarmResults(loadingDiv, result);
+        } else {
+          result = await window.api.taskDelegation(msg, currentStrategy);
+          loadingDiv.remove();
+          if (result.success) {
+            addMessage('agent', result.result || 'No response', result.provider || currentStrategy);
+          } else {
+            addMessage('agent', `Error: ${result.error}`, 'Error');
+          }
+        }
+      } catch (e) {
+        loadingDiv.remove();
+        addMessage('agent', `Error: ${e.message}`, 'System');
+      }
+    }
+    
+    function addMessage(type, content, source = '') {
+      const messages = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = `message ${type}`;
+      
+      if (type === 'user') {
+        div.innerHTML = `<div class="message-avatar">👤</div><div class="message-content">${escapeHtml(content)}</div>`;
+      } else {
+        div.innerHTML = `
+          <div class="message-avatar">🐝</div>
+          <div class="message-content">
+            ${escapeHtml(content)}
+            <div class="message-meta">
+              <span class="provider-chip">${source || 'AGENT'}</span>
+            </div>
+          </div>
+        `;
+      }
+      
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+      return div;
+    }
+    
+    function addLoadingMessage() {
+      const messages = document.getElementById('chatMessages');
+      const div = document.createElement('div');
+      div.className = 'message';
+      div.innerHTML = `
+        <div class="message-avatar">🐝</div>
+        <div class="message-content">
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+            <span>Swarm is processing...</span>
+          </div>
+        </div>
+      `;
+      messages.appendChild(div);
+      messages.scrollTop = messages.scrollHeight;
+      return div;
+    }
+    
+    function renderSwarmResults(container, result) {
+      if (!result.swarmResults) {
+        container.remove();
+        addMessage('agent', 'No results from swarm', 'SWARM');
+        return;
+      }
+      
+      const successful = result.swarmResults.filter(r => r.success);
+      
+      container.innerHTML = `
+        <div class="message-avatar">🐝</div>
+        <div class="message-content">
+          <div><strong>🐝 Swarm Response</strong> — ${successful.length}/${result.swarmResults.length} agents responded</div>
+          <div class="swarm-container">
+            <div class="swarm-header">
+              <span class="swarm-title">Agent Results</span>
+              <span class="swarm-summary">${result.totalAgents} agents • ${result.activeProviders} providers</span>
+            </div>
+            <div class="swarm-results">
+              ${result.swarmResults.map(r => `
+                <div class="swarm-agent ${r.success ? '' : 'error'}">
+                  <div class="swarm-agent-header">
+                    <span class="swarm-agent-name">${r.agentId}</span>
+                    <div>
+                      <span class="swarm-agent-model">${r.model}</span>
+                      <span class="swarm-agent-latency">${r.latencyMs}ms</span>
+                    </div>
+                  </div>
+                  ${r.success ? `<div class="swarm-agent-result">${escapeHtml(r.result?.substring(0, 500) || 'No response')}</div>` : `<div style="color:var(--danger);font-size:12px;">Error: ${r.error}</div>`}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+      document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
+    }
+    
+    function setStrategy(strategy) {
+      currentStrategy = strategy;
+      document.querySelectorAll('.strategy-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector(`[data-strategy="${strategy}"]`)?.classList.add('active');
+    }
+    
+    function switchSection(section) {
+      document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+      document.querySelector(`[data-section="${section}"]`)?.classList.add('active');
+      
+      if (section === 'console') showPanelTab('console');
+      else if (section === 'desktop') showPanelTab('desktop');
+    }
+    
+    function showPanelTab(tab) {
+      document.querySelectorAll('.panel-tab').forEach(t => t.classList.remove('active'));
+      document.querySelector(`.panel-tab[onclick*="${tab}"]`)?.classList.add('active');
+      
+      document.getElementById('providersTab').style.display = tab === 'providers' ? 'block' : 'none';
+      document.getElementById('agentsTab').style.display = tab === 'agents' ? 'block' : 'none';
+    }
+    
+    function toggleAddProvider() {
+      document.getElementById('addProviderForm').classList.toggle('show');
+    }
+    
+    async function addProvider() {
+      const config = {
+        name: document.getElementById('providerName').value,
+        type: document.getElementById('providerType').value,
+        baseUrl: document.getElementById('providerUrl').value,
+        apiKey: document.getElementById('providerKey').value,
+        models: [document.getElementById('providerModel').value],
+        enabled: true,
+        priority: 2
+      };
+      
+      await window.api.addProvider(config);
+      providers = await window.api.getProviders();
+      renderProviders();
+      toggleAddProvider();
+      logToConsole('Provider added: ' + config.name, 'success');
+    }
+    
+    async function toggleProvider(id) {
+      const p = providers.find(p => p.id === id);
+      if (p) {
+        p.enabled = !p.enabled;
+        await window.api.addProvider(p);
+        renderProviders();
+      }
+    }
+    
+    async function runDesktopTool(tool) {
+      const resultDiv = document.createElement('div');
+      resultDiv.className = 'desktop-result';
+      resultDiv.innerHTML = '<div class="loading-spinner"><div class="spinner"></div></div>';
+      addMessage('agent', '', 'Desktop Tools');
+      
+      try {
+        if (tool === 'screenshot') {
+          const result = await window.api.screenshot();
+          if (result.success) {
+            addMessage('agent', `📸 Screenshot captured (${result.width}x${result.height})`, 'Desktop');
+          } else {
+            addMessage('agent', `❌ ${result.error}`, 'Desktop');
+          }
+        } else if (tool === 'windows') {
+          const result = await window.api.getWindows();
+          if (result.success) {
+            const winList = result.windows?.map(w => `${w.title || 'Untitled'} [${w.process}]`).join('\n') || 'No windows';
+            addMessage('agent', `🪟 Open Windows:\n${winList}`, 'Desktop');
+          }
+        } else if (tool === 'clipboard') {
+          const result = await window.api.getClipboard();
+          addMessage('agent', `📋 Clipboard:\n${result.text || '(empty)'}`, 'Desktop');
+        }
+      } catch (e) {
+        addMessage('agent', `❌ ${e.message}`, 'Desktop');
+      }
+    }
+    
+    async function runPowerShell() {
+      const cmd = document.getElementById('psCommand')?.value;
+      if (!cmd) return;
+      logToConsole('Running: ' + cmd, 'info');
+      const result = await window.api.runPowerShell(cmd);
+      if (result.success) logToConsole(result.stdout || '(no output)', 'success');
+      else logToConsole('Error: ' + result.error, 'error');
+    }
+    
+    function logToConsole(msg, type = 'info') {
+      const output = document.getElementById('consoleOutput');
+      if (!output) return;
+      const line = document.createElement('div');
+      line.className = `console-line ${type}`;
+      const time = new Date().toLocaleTimeString();
+      line.innerHTML = `<span class="console-time">[${time}]</span> ${escapeHtml(msg)}`;
+      output.appendChild(line);
+      output.scrollTop = output.scrollHeight;
+    }
+    
+    function clearChat() {
+      const messages = document.getElementById('chatMessages');
+      messages.innerHTML = `
+        <div class="message">
+          <div class="message-avatar">🐝</div>
+          <div class="message-content">
+            Chat cleared! Ready for new tasks.
+            <div class="message-meta"><span class="provider-chip">🐝 SWARM READY</span></div>
+          </div>
+        </div>
+      `;
+    }
+    
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    // Nav click handlers
+    document.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        const section = item.dataset.section;
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        item.classList.add('active');
+        
+        // Hide all main content sections
+        document.querySelector('.main-area').style.display = section === 'voice' ? 'none' : '';
+        document.querySelector('.right-panel').style.display = section === 'voice' ? 'none' : '';
+        
+        // Show voice section
+        const voiceSection = document.getElementById('voiceSection');
+        voiceSection.style.display = section === 'voice' ? 'block' : 'none';
+        
+        if (section === 'chat') {
+          document.querySelector('.chat-messages').scrollTop = document.querySelector('.chat-messages').scrollHeight;
+        }
+      });
+    });
+    
+    // Voice Planner Functions
+    let isListening = false;
+    let gameplans = [];
+    
+    async function startVoicePlanner() {
+      const btn = document.getElementById('startVoiceBtn');
+      const visualizer = document.getElementById('audioVisualizer');
+      
+      if (!isListening) {
+        // Check for Web Speech API support
+        if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+          addMessage('agent', '🎤 Voice recognition not supported in this browser. Please use Chrome.', 'System');
+          return;
+        }
+        
+        isListening = true;
+        btn.textContent = '⏹️ Stop Voice';
+        btn.classList.add('listening');
+        
+        // Start audio visualizer animation
+        document.querySelectorAll('.audio-bar').forEach((bar, i) => {
+          setTimeout(() => bar.classList.add('active'), i * 50);
+        });
+        
+        addMessage('agent', '🎤 Voice chat started. Put on your headphones and start talking!', 'Voice Planner');
+        
+        // Simulate voice recognition setup
+        // In production, this would use Web Speech API
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        
+        recognition.onresult = (event) => {
+          const transcript = Array.from(event.results)
+            .map(result => result[0].transcript)
+            .join('');
+          
+          if (event.results[event.results.length - 1].isFinal) {
+            handleVoiceCommand(transcript);
+          }
+        };
+        
+        recognition.onerror = (event) => {
+          console.error('Speech recognition error:', event.error);
+          addMessage('agent', `🎤 Error: ${event.error}`, 'Voice Planner');
+        };
+        
+        recognition.onend = () => {
+          if (isListening) {
+            // Restart if still listening
+            recognition.start();
+          }
+        };
+        
+        recognition.start();
+        
+      } else {
+        stopVoicePlanner();
+      }
+    }
+    
+    function stopVoicePlanner() {
+      isListening = false;
+      const btn = document.getElementById('startVoiceBtn');
+      btn.textContent = '🎤 Start Voice Chat';
+      btn.classList.remove('listening');
+      
+      // Stop visualizer animation
+      document.querySelectorAll('.audio-bar').forEach(bar => {
+        bar.classList.remove('active');
+      });
+      
+      addMessage('agent', '⏹️ Voice chat stopped.', 'Voice Planner');
+    }
+    
+    function handleVoiceCommand(transcript) {
+      addMessage('user', transcript);
+      
+      // Process voice command and create gameplan
+      if (transcript.toLowerCase().includes('new gameplan') || transcript.toLowerCase().includes('create plan')) {
+        showNewGameplanModal();
+        addMessage('agent', '🎯 Opening gameplan creator. What would you like to build?', 'Voice Planner');
+      } else if (transcript.toLowerCase().includes('execute') || transcript.toLowerCase().includes('run')) {
+        // Find and execute gameplan
+        const gp = gameplans[0];
+        if (gp) executeGameplanByName(gp.title);
+        else addMessage('agent', '🎯 No active gameplan found. Create one first!', 'Voice Planner');
+      } else {
+        // Default: add as new gameplan idea
+        addMessage('agent', `💡 Got it: "${transcript}". Use this to create a gameplan?`, 'Voice Planner');
+      }
+    }
+    
+    function showNewGameplanModal() {
+      document.getElementById('gameplanModal').style.display = 'flex';
+      document.getElementById('gameplanTitle').focus();
+    }
+    
+    function closeGameplanModal() {
+      document.getElementById('gameplanModal').style.display = 'none';
+      document.getElementById('gameplanTitle').value = '';
+      document.getElementById('gameplanSteps').value = '';
+    }
+    
+    function createGameplan() {
+      const title = document.getElementById('gameplanTitle').value.trim();
+      const stepsText = document.getElementById('gameplanSteps').value.trim();
+      
+      if (!title) {
+        addMessage('agent', '⚠️ Please enter a gameplan title.', 'Voice Planner');
+        return;
+      }
+      
+      const steps = stepsText.split('\n').filter(s => s.trim());
+      
+      const gameplan = {
+        id: Date.now(),
+        title,
+        steps,
+        status: 'pending',
+        createdAt: new Date().toISOString()
+      };
+      
+      gameplans.push(gameplan);
+      renderGameplans();
+      closeGameplanModal();
+      
+      addMessage('agent', `✅ Gameplan "${title}" created with ${steps.length} steps!`, 'Voice Planner');
+      
+      // Save to localStorage
+      localStorage.setItem('aiSwarmGameplans', JSON.stringify(gameplans));
+    }
+    
+    function renderGameplans() {
+      const list = document.getElementById('gameplanList');
+      if (gameplans.length === 0) {
+        list.innerHTML = '<div style="text-align:center;color:var(--text-dim);padding:40px;">No gameplans yet. Create one!</div>';
+        return;
+      }
+      
+      list.innerHTML = gameplans.map((gp, idx) => `
+        <div class="gameplan-item ${gp.status === 'running' ? 'active' : ''}" onclick="selectGameplan(this)" data-idx="${idx}">
+          <div class="gameplan-item-header">
+            <span class="gameplan-item-title">${gp.title}</span>
+            <span class="gameplan-item-status ${gp.status}">${gp.status}</span>
+          </div>
+          <div class="gameplan-item-steps">
+            ${gp.steps.map((step, i) => `
+              <div class="gameplan-step ${i < gp.completedSteps ? 'completed' : i === gp.completedSteps ? 'current' : ''}">
+                <span class="step-icon">${i < gp.completedSteps ? '✓' : i + 1}</span>
+                <span class="step-text">${step}</span>
+              </div>
+            `).join('')}
+          </div>
+          <div class="gameplan-actions">
+            <button class="gameplan-action-btn" onclick="pauseGameplan(event, ${idx})">⏸️ Pause</button>
+            <button class="gameplan-action-btn" onclick="viewGameplanDetails(event, ${idx})">👁️ View</button>
+            <button class="gameplan-action-btn execute" onclick="executeGameplan(event, ${idx})">▶️ Execute</button>
+          </div>
+        </div>
+      `).join('');
+    }
+    
+    async function executeGameplan(event, idx) {
+      if (event) event.stopPropagation();
+      if (typeof idx !== 'number') return;
+      
+      const gp = gameplans[idx];
+      if (!gp) return;
+      
+      gp.status = 'running';
+      gp.completedSteps = gp.completedSteps || 0;
+      renderGameplans();
+      
+      addMessage('agent', `🚀 Executing gameplan: "${gp.title}"`, 'Voice Planner');
+      
+      // Execute each step with the swarm AI
+      for (let i = gp.completedSteps; i < gp.steps.length; i++) {
+        const step = gp.steps[i];
+        addMessage('agent', `📋 Step ${i + 1}: ${step}`, 'Gameplan');
+        
+        // Send to swarm for execution
+        try {
+          const result = await window.api.sendMessage(`Execute: ${step}`);
+          addMessage('agent', `✅ Step ${i + 1} completed!`, 'Gameplan');
+        } catch (e) {
+          addMessage('agent', `⚠️ Step ${i + 1} had an issue: ${e.message}`, 'Gameplan');
+        }
+        
+        gp.completedSteps = i + 1;
+        renderGameplans();
+      }
+      
+      gp.status = 'done';
+      renderGameplans();
+      addMessage('agent', `🎉 Gameplan "${gp.title}" completed!`, 'Voice Planner');
+      
+      localStorage.setItem('aiSwarmGameplans', JSON.stringify(gameplans));
+    }
+    
+    function executeGameplanByName(title) {
+      const idx = gameplans.findIndex(gp => gp.title.toLowerCase().includes(title.toLowerCase()));
+      if (idx >= 0) {
+        executeGameplan(null, idx);
+      } else {
+        addMessage('agent', `❓ Could not find gameplan: "${title}"`, 'Voice Planner');
+      }
+    }
+    
+    function pauseGameplan(event, idx) {
+      if (event) event.stopPropagation();
+      if (typeof idx !== 'number') return;
+      
+      gameplans[idx].status = 'pending';
+      renderGameplans();
+      addMessage('agent', `⏸️ Gameplan paused. Use "Execute" to continue.`, 'Voice Planner');
+    }
+    
+    function viewGameplanDetails(event, idx) {
+      if (event) event.stopPropagation();
+      if (typeof idx !== 'number') return;
+      
+      const gp = gameplans[idx];
+      addMessage('agent', `📋 ${gp.title}\n\nSteps:\n${gp.steps.map((s, i) => `${i + 1}. ${s}`).join('\n')}`, 'Gameplan');
+    }
+    
+    function selectGameplan(el) {
+      document.querySelectorAll('.gameplan-item').forEach(item => item.classList.remove('active'));
+      el.classList.add('active');
+    }
+    
+    function testAudio() {
+      addMessage('agent', '🔊 Testing audio...', 'Voice Planner');
+      
+      // Create audio context and play a test tone
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      const oscillator = audioContext.createOscillator();
+      const gainNode = audioContext.createGain();
+      
+      oscillator.connect(gainNode);
+      gainNode.connect(audioContext.destination);
+      
+      oscillator.frequency.value = 440;
+      oscillator.type = 'sine';
+      gainNode.gain.value = 0.1;
+      
+      oscillator.start();
+      setTimeout(() => {
+        oscillator.stop();
+        addMessage('agent', '✅ Audio test complete. Did you hear the tone?', 'Voice Planner');
+      }, 500);
+    }
+    
+    async function saveApiKeys() {
+      const keys = {
+        openai: document.getElementById('openaiKey')?.value,
+        anthropic: document.getElementById('anthropicKey')?.value,
+        google: document.getElementById('googleKey')?.value,
+        groq: document.getElementById('groqKey')?.value,
+        cerebras: document.getElementById('cerebrasKey')?.value,
+        ministorage: document.getElementById('ministorageKey')?.value,
+        openrouter: document.getElementById('openrouterKey')?.value,
+        cloudflare: document.getElementById('cloudflareKey')?.value
+      };
+      
+      // Save to backend
+      for (const [key, value] of Object.entries(keys)) {
+        if (value) {
+          await window.api.saveApiKey(key, value);
+        }
+      }
+      
+      document.getElementById('keysSavedMsg').style.display = 'block';
+      setTimeout(() => {
+        document.getElementById('keysSavedMsg').style.display = 'none';
+      }, 3000);
+      
+      addMessage('agent', '🔐 API keys saved securely!', 'Voice Planner');
+    }
+    
+    async function loadApiKeys() {
+      const keys = await window.api.getApiKeys();
+      if (keys.openai) document.getElementById('openaiKey').value = keys.openai;
+      if (keys.anthropic) document.getElementById('anthropicKey').value = keys.anthropic;
+      if (keys.google) document.getElementById('googleKey').value = keys.google;
+      if (keys.groq) document.getElementById('groqKey').value = keys.groq;
+      if (keys.cerebras) document.getElementById('cerebrasKey').value = keys.cerebras;
+      if (keys.ministorage) document.getElementById('ministorageKey').value = keys.ministorage;
+      if (keys.openrouter) document.getElementById('openrouterKey').value = keys.openrouter;
+      if (keys.cloudflare) document.getElementById('cloudflareKey').value = keys.cloudflare;
+    }
+    
+    // Initialize on load
+    async function init() {
+      try {
+        const providers = await window.api.getProviders();
+        document.getElementById('providerCount').textContent = providers.length;
+        renderProviders();
+        
+        const agents = await window.api.getAgents();
+        document.getElementById('agentCount').textContent = agents.length;
+        renderAgents();
+        
+        // Load saved gameplans
+        const savedGameplans = localStorage.getItem('aiSwarmGameplans');
+        if (savedGameplans) {
+          gameplans = JSON.parse(savedGameplans);
+          renderGameplans();
+        }
+        
+        // Load API keys
+        loadApiKeys();
+        
+        // Check headphone status
+        if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+          document.getElementById('headphoneStatus').classList.add('connected');
+        }
+        
+        logToConsole('AI Swarm Desktop v2 initialized', 'success');
+      } catch (e) {
+        logToConsole('Init error: ' + e.message, 'error');
+      }
+    }
+    
+    init();
+  </script>
+  
+  <!-- Voice Planner Section -->
+  <div id="voiceSection" class="panel-section" style="display:none;">
+    <div class="voice-planner">
+      <div class="voice-header">
+        <div class="voice-title">
+          <span class="icon">🎧</span>
+          Voice Planner
+        </div>
+        <div class="headphone-status connected" id="headphoneStatus">
+          <span class="headphone-icon">🎧</span>
+          <span>Headphones Connected</span>
+        </div>
+      </div>
+      
+      <div class="voice-controls">
+        <button class="voice-btn primary" id="startVoiceBtn" onclick="startVoicePlanner()">
+          🎤 Start Voice Chat
+        </button>
+        <button class="voice-btn secondary" onclick="showNewGameplanModal()">
+          📋 New Gameplan
+        </button>
+        <button class="voice-btn secondary" onclick="testAudio()">
+          🔊 Test Audio
+        </button>
+      </div>
+      
+      <div class="audio-visualizer" id="audioVisualizer">
+        ${Array(20).fill('<div class="audio-bar"></div>').join('')}
+      </div>
+      
+      <div class="voice-main">
+        <!-- Left: API Keys -->
+        <div class="voice-panel">
+          <div class="voice-panel-header">
+            <span class="icon">🔑</span>
+            API Configuration
+          </div>
+          <div class="voice-panel-content">
+            <div class="api-keys-form" id="apiKeysForm">
+              <div class="api-key-group">
+                <label class="api-key-label">OpenAI (GPT-4, Swarm AI)</label>
+                <input type="password" class="api-key-input" id="openaiKey" placeholder="sk-..." onchange="saveApiKeys()">
+              </div>
+              <div class="api-key-group">
+                <label class="api-key-label">Anthropic (Claude)</label>
+                <input type="password" class="api-key-input" id="anthropicKey" placeholder="sk-ant-..." onchange="saveApiKeys()">
+              </div>
+              <div class="api-key-group">
+                <label class="api-key-label">Google (Gemini)</label>
+                <input type="password" class="api-key-input" id="googleKey" placeholder="AIza..." onchange="saveApiKeys()">
+              </div>
+              <div class="api-key-group">
+                <label class="api-key-label">Groq (Free LLM)</label>
+                <input type="password" class="api-key-input" id="groqKey" placeholder="gsk_..." onchange="saveApiKeys()">
+              </div>
+              <div class="api-key-group">
+                <label class="api-key-label">Cerebras (Free LLM)</label>
+                <input type="password" class="api-key-input" id="cerebrasKey" placeholder="cerebras_" onchange="saveApiKeys()">
+              </div>
+              <div class="api-key-group">
+                <label class="api-key-label">MiniStorage CRM API</label>
+                <input type="password" class="api-key-input" id="ministorageKey" placeholder="mst_..." onchange="saveApiKeys()">
+              </div>
+              <div class="api-key-group">
+                <label class="api-key-label">OpenRouter Key</label>
+                <input type="password" class="api-key-input" id="openrouterKey" placeholder="sk-or-..." onchange="saveApiKeys()">
+              </div>
+              <div class="api-key-group">
+                <label class="api-key-label">Cloudflare Workers AI</label>
+                <input type="password" class="api-key-input" id="cloudflareKey" placeholder="cf_..." onchange="saveApiKeys()">
+              </div>
+            </div>
+            <div id="keysSavedMsg" class="keys-saved" style="display:none;">
+              ✓ API keys saved securely
+            </div>
+          </div>
+        </div>
+        
+        <!-- Right: Gameplans -->
+        <div class="voice-panel">
+          <div class="voice-panel-header">
+            <span class="icon">🎯</span>
+            Active Gameplans
+          </div>
+          <div class="voice-panel-content">
+            <div class="gameplan-list" id="gameplanList">
+              <div class="gameplan-item" onclick="selectGameplan(this)">
+                <div class="gameplan-item-header">
+                  <span class="gameplan-item-title">🎮 Build Game App</span>
+                  <span class="gameplan-item-status running">Running</span>
+                </div>
+                <div class="gameplan-item-steps">
+                  <div class="gameplan-step completed">
+                    <span class="step-icon">✓</span>
+                    <span class="step-text">Design UI mockups</span>
+                  </div>
+                  <div class="gameplan-step current">
+                    <span class="step-icon">2</span>
+                    <span class="step-text">Build React frontend</span>
+                  </div>
+                  <div class="gameplan-step">
+                    <span class="step-icon">3</span>
+                    <span class="step-text">Integrate AI agents</span>
+                  </div>
+                  <div class="gameplan-step">
+                    <span class="step-icon">4</span>
+                    <span class="step-text">Test & Deploy</span>
+                  </div>
+                </div>
+                <div class="gameplan-actions">
+                  <button class="gameplan-action-btn" onclick="pauseGameplan(event)">⏸️ Pause</button>
+                  <button class="gameplan-action-btn" onclick="viewGameplanDetails(event)">👁️ View</button>
+                  <button class="gameplan-action-btn execute" onclick="executeGameplan(event)">▶️ Execute</button>
+                </div>
+              </div>
+              
+              <div class="gameplan-item" onclick="selectGameplan(this)">
+                <div class="gameplan-item-header">
+                  <span class="gameplan-item-title">📱 Translate Now Update</span>
+                  <span class="gameplan-item-status pending">Pending</span>
+                </div>
+                <div class="gameplan-item-steps">
+                  <div class="gameplan-step completed">
+                    <span class="step-icon">✓</span>
+                    <span class="step-text">Research competitor features</span>
+                  </div>
+                  <div class="gameplan-step">
+                    <span class="step-icon">2</span>
+                    <span class="step-text">Add OCR improvements</span>
+                  </div>
+                  <div class="gameplan-step">
+                    <span class="step-icon">3</span>
+                    <span class="step-text">Update UI/UX</span>
+                  </div>
+                </div>
+                <div class="gameplan-actions">
+                  <button class="gameplan-action-btn execute" onclick="executeGameplan(event)">▶️ Execute</button>
+                </div>
+              </div>
+            </div>
+            <button class="add-gameplan-btn" onclick="showNewGameplanModal()">+ Add New Gameplan</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- New Gameplan Modal -->
+  <div id="gameplanModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:var(--bg-card);border-radius:20px;padding:30px;width:500px;max-width:90%;">
+      <h3 style="margin-bottom:20px;font-size:18px;">🎯 Create New Gameplan</h3>
+      <input type="text" id="gameplanTitle" placeholder="Gameplan title..." class="gameplan-input" style="margin-bottom:10px;">
+      <textarea id="gameplanSteps" placeholder="Step 1: ...&#10;Step 2: ...&#10;Step 3: ..." class="gameplan-input" rows="6"></textarea>
+      <div style="display:flex;gap:10px;margin-top:16px;">
+        <button class="voice-btn secondary" onclick="closeGameplanModal()">Cancel</button>
+        <button class="voice-btn primary" onclick="createGameplan()">Create Gameplan</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
