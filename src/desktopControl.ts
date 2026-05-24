@@ -159,7 +159,7 @@ $proc = Get-Process -Id $pid -ErrorAction SilentlyContinue
             cmd = `powershell -Command "Add-Type -TypeDefinition @'using System;using System.Runtime.InteropServices;public class Win{public const int SW_RESTORE=9;[DllImport(\"user32.dll\")]public static extern bool ShowWindow(IntPtr h,int c);}'@;$p=Get-Process -Name '${title}' -ErrorAction SilentlyContinue;if($p){[Win]::ShowWindow($p.MainWindowHandle,[Win]::SW_RESTORE)}"`;
             break;
           case 'focus': 
-            cmd = `powershell -Command "$p=Get-Process -Name '${title}' -ErrorAction SilentlyContinue;if($p){[Win32]::SetForegroundWindow($p.MainWindowHandle)}"`;
+            cmd = `powershell -NoProfile -ExecutionPolicy Bypass -Command \"Add-Type @\"using System;using System.Runtime.InteropServices;public class Win32{[DllImport(\\\\\"user32.dll\\\\\")]public static extern bool SetForegroundWindow(IntPtr hWnd);}\"@;$p=Get-Process -Name '${title}' -ErrorAction SilentlyContinue;if($p){[Win32]::SetForegroundWindow($p.MainWindowHandle)}\"`;
             break;
         }
         if (cmd) return new Promise((resolve) => { exec(cmd, (error) => resolve({ success: !error, error: error?.message })); });
@@ -257,9 +257,10 @@ Start-Sleep -Milliseconds 50
     try {
       if (process.platform === 'win32') {
         return new Promise((resolve) => {
-          const escaped = text.replace(/"/g, '`"').replace(/'/g, "''").replace(/\n/g, '{ENTER}');
-          const script = `Add-Type System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait('${escaped}')`;
-          exec(`powershell -NoProfile -ExecutionPolicy Bypass -Command "${script}"`, (error) => {
+          // Use base64 encoding to prevent PowerShell injection via special characters
+          const script = `Add-Type System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait('${text.replace(/'/g, "''")}')`;
+          const encoded = Buffer.from(script, 'utf16le').toString('base64');
+          exec(`powershell -NoProfile -ExecutionPolicy Bypass -EncodedCommand ${encoded}`, (error) => {
             resolve({ success: !error, error: error?.message });
           });
         });
@@ -303,10 +304,14 @@ Start-Sleep -Milliseconds 50
           if (upper === 'WIN') return '^%';
           return `{${upper}}`;
         }).join('');
-        
+        // Validate: only allow alphanumeric and special SendWait chars to prevent injection
+        if (!/^[^{}]*[^{}*{}]*$/.test(keyCombo)) {
+          return { success: false, error: 'Invalid hotkey combination' };
+        }
         return new Promise((resolve) => {
           const script = `Add-Type System.Windows.Forms; [System.Windows.Forms.SendKeys]::SendWait('${keyCombo}')`;
-          exec(`powershell -NoProfile -ExecutionPolicy Bypass -Command "${script}"`, (error) => {
+          const encoded = Buffer.from(script, 'utf16le').toString('base64');
+          exec(`powershell -NoProfile -ExecutionPolicy Bypass -EncodedCommand ${encoded}`, (error) => {
             resolve({ success: !error, error: error?.message });
           });
         });

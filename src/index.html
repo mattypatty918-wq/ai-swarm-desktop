@@ -2227,6 +2227,7 @@
         anthropic: document.getElementById('anthropicKey')?.value,
         google: document.getElementById('googleKey')?.value,
         groq: document.getElementById('groqKey')?.value,
+        grok: document.getElementById('grokKey')?.value,
         cerebras: document.getElementById('cerebrasKey')?.value,
         ministorage: document.getElementById('ministorageKey')?.value,
         openrouter: document.getElementById('openrouterKey')?.value,
@@ -2254,6 +2255,7 @@
       if (keys.anthropic) document.getElementById('anthropicKey').value = keys.anthropic;
       if (keys.google) document.getElementById('googleKey').value = keys.google;
       if (keys.groq) document.getElementById('groqKey').value = keys.groq;
+      if (keys.grok) document.getElementById('grokKey').value = keys.grok;
       if (keys.cerebras) document.getElementById('cerebrasKey').value = keys.cerebras;
       if (keys.ministorage) document.getElementById('ministorageKey').value = keys.ministorage;
       if (keys.openrouter) document.getElementById('openrouterKey').value = keys.openrouter;
@@ -2349,6 +2351,8 @@
               <div class="api-key-group">
                 <label class="api-key-label">Groq (Free LLM)</label>
                 <input type="password" class="api-key-input" id="groqKey" placeholder="gsk_..." onchange="saveApiKeys()">
+                <input type="password" class="api-key-input" id="grokKey" placeholder="gsk_..." onchange="saveApiKeys()">
+                <input type="password" class="api-key-input" id="cerebrasKey" placeholder="cerebras_" onchange="saveApiKeys()">
               </div>
               <div class="api-key-group">
                 <label class="api-key-label">Cerebras (Free LLM)</label>

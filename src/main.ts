@@ -33,6 +33,15 @@ const createWindow = () => {
   });
 
   mainWindow.loadFile(path.join(__dirname, '../src/index.html'));
+
+  mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+    callback({
+      responseHeaders: {
+        ...details.responseHeaders,
+        'Content-Security-Policy': ["default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://*.groq.com https://*.cerebras.ai https://*.deepseek.com https://*.perplexity.ai https://*.together.xyz https://openrouter.ai https://*.generativelanguage.googleapis.com https://api.anthropic.com https://api.cloudflare.com https://*.oraclecloud.com https://api.replicate.com https://api.fal.ai https://*.mistral.ai https://api.openai.com https://mattypattysapps.zo.space https://llama2.lepton.ai https://llama3.2.leases.ai https://*.runpod.io https://*.novita.ai https://*.ngc.nvidia.com https://*.bedrock-runtime.amazonaws.com https://*.oracleapps.com https://inference.ai.ocp.oraclecloud.com https://api.ngc.nvidia.com"]
+      }
+    });
+  });
   
   mainWindow.on('closed', () => {
     mainWindow = null;
@@ -286,9 +295,9 @@ async function checkForUpdates() {
     });
     const data = await response.json();
     return data;
-  } catch (e) {
+  } catch (e: any) {
     log.error('Update check failed:', e);
-    return { hasUpdate: false };
+    return { hasUpdate: false, error: e.message };
   }
 }
 
