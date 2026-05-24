@@ -87,7 +87,7 @@ export class AISwarmController {
       { id: 'groq-free', name: 'Groq ⚡', type: 'custom', baseUrl: 'https://api.groq.com/openai/v1', apiKey: key('GROQ_API_KEY'), models: ['llama-3.1-70b-versatile', 'llama-3.1-8b-instant', 'mixtral-8x7b-32768'], enabled: true, priority: 1, credits: 0, successCount: 0, errorCount: 0 },
       { id: 'cerebras-free', name: 'Cerebras 🚀', type: 'custom', baseUrl: 'https://api.cerebras.ai/v1', apiKey: key('CEREBRAS_API_KEY'), models: ['llama-3.3-70b', 'qwen-2.5-72b-instruct', 'mistral-nemo-12b'], enabled: true, priority: 1, credits: 0, successCount: 0, errorCount: 0 },
       { id: 'lepton-free', name: 'Lepton AI ✨', type: 'custom', baseUrl: 'https://llama2.lepton.ai/api/v1', apiKey: key('LEPTON_API_KEY'), models: ['llama-2-7b', 'llama-2-13b', 'llama-2-70b'], enabled: true, priority: 1, credits: 0, successCount: 0, errorCount: 0 },
-      { id: 'grok-free', name: 'Grok 🧠', type: 'custom', baseUrl: 'https://api.groq.com/openai/v1', apiKey: key('GROK_API_KEY'), models: ['llama-3.1-70b-versatile', 'llama-3.1-8b-instant'], enabled: true, priority: 1, credits: 0, successCount: 0, errorCount: 0 },
+      { id: 'grok-free', name: 'Grok 🧠', type: 'custom', baseUrl: 'https://api.x.ai/v1', apiKey: key('GROK_API_KEY') || key('XAI_API_KEY') || 'YOUR_XAI_API_KEY', models: ['grok-2', 'grok-2-mini', 'grok-beta'], enabled: true, priority: 1, credits: 0, successCount: 0, errorCount: 0 },
       
       // FREE TIER - Standard
       { id: 'deepseek-free', name: 'Deepseek 💰', type: 'custom', baseUrl: 'https://api.deepseek.com/v1', apiKey: key('DEEPSEEK_API_KEY'), models: ['deepseek-chat', 'deepseek-coder', 'deepseek-math'], enabled: true, priority: 2, credits: 0, successCount: 0, errorCount: 0 },
