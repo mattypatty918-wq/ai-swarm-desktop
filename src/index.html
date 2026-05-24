@@ -1614,8 +1614,44 @@
     
     async function init() {
       try {
+        // Guard: ensure window.api is available (contextBridge may not be ready yet in some environments)
+        if (!window.api || typeof window.api.getStats !== 'function') {
+          console.warn('API not ready yet, retrying in 1s...');
+          setTimeout(init, 1000);
+          return;
+        }
+        
         const stats = await window.api.getStats();
-        document.getElementById('agentCount').textContent = stats.agents;
+    async function init() {
+      try {
+        // Guard: ensure window.api is available (contextBridge may not be ready yet in some environments)
+        if (!window.api || typeof window.api.getStats !== 'function') {
+          console.warn('API not ready yet, retrying in 1s...');
+          setTimeout(init, 1000);
+          return;
+        }
+        
+        const stats = await window.api.getStats();
+    async function init() {
+      try {
+        // Guard: ensure window.api is available (contextBridge may not be ready yet in some environments)
+        if (!window.api || typeof window.api.getStats !== 'function') {
+          console.warn('API not ready yet, retrying in 1s...');
+          setTimeout(init, 1000);
+          return;
+        }
+        
+        const stats = await window.api.getStats();
+    async function init() {
+      try {
+        // Guard: ensure window.api is available (contextBridge may not be ready yet in some environments)
+        if (!window.api || typeof window.api.getStats !== 'function') {
+          console.warn('API not ready yet, retrying in 1s...');
+          setTimeout(init, 1000);
+          return;
+        }
+        
+        const stats = await window.api.getStats();
         document.getElementById('statAgents').textContent = stats.agents;
         document.getElementById('providerCount').textContent = stats.activeProviders;
         document.getElementById('statProviders').textContent = stats.activeProviders;
